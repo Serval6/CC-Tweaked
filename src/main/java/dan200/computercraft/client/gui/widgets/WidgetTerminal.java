@@ -5,6 +5,7 @@
  */
 package dan200.computercraft.client.gui.widgets;
 
+import dan200.computercraft.ComputerCraft;
 import dan200.computercraft.client.gui.FixedWidthFontRenderer;
 import dan200.computercraft.core.terminal.Terminal;
 import dan200.computercraft.shared.computer.core.IComputer;
@@ -30,6 +31,9 @@ public class WidgetTerminal extends Widget
     private int m_lastClickButton = -1;
     private int m_lastClickX = -1;
     private int m_lastClickY = -1;
+
+    private int m_lastMouseX = -1;
+    private int m_lastMouseY = -1;
 
     private boolean m_focus = false;
     private boolean m_allowFocusLoss = true;
@@ -209,9 +213,10 @@ public class WidgetTerminal extends Widget
     public void handleMouseInput( int mouseX, int mouseY )
     {
         IComputer computer = m_computer.getComputer();
+        if ( computer == null || !computer.isColour() ) return;
+
         if( mouseX >= getXPosition() && mouseX < getXPosition() + getWidth() &&
-            mouseY >= getYPosition() && mouseY < getYPosition() + getHeight() &&
-            computer != null && computer.isColour() )
+            mouseY >= getYPosition() && mouseY < getYPosition() + getHeight() )
         {
             Terminal term = computer.getTerminal();
             if( term != null )
@@ -228,11 +233,6 @@ public class WidgetTerminal extends Widget
                 }
 
                 int wheelChange = Mouse.getEventDWheel();
-                if( wheelChange == 0 && m_lastClickButton == -1 )
-                {
-                    return;
-                }
-
                 if( m_focus )
                 {
                     if( wheelChange < 0 )
@@ -251,7 +251,26 @@ public class WidgetTerminal extends Widget
                         m_lastClickY = charY;
                     }
                 }
+
+                handleMouseMove( computer, charX, charY );
             }
+        }
+        else // The mouse has moved out of the terminal, send a -1, -1 mouse_move event
+        {
+            handleMouseMove( computer, -1, -1 );
+        }
+    }
+
+    private void handleMouseMove( IComputer computer, int charX, int charY )
+    {
+        // Avoid sending mouse movement events if the cursor is under the same character.
+        // Note that clients can also use the mouseMoveThrottle config options to disable
+        // sending their mouse movements to a server entirely.
+        if( ComputerCraft.mouseMoveThrottle >= 0 && (m_lastMouseX != charX || m_lastMouseY != charY) )
+        {
+            computer.mouseMove( charX, charY );
+            m_lastMouseX = charX;
+            m_lastMouseY = charY;
         }
     }
 

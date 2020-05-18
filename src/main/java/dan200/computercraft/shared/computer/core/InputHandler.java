@@ -44,4 +44,16 @@ public interface InputHandler
     {
         queueEvent( "mouse_scroll", new Object[] { direction, x, y } );
     }
+
+    default void mouseMove( int x, int y )
+    {
+        // Always send the first argument (e.g. button, direction) as 1, to maintain
+        // backwards compatibility with programs that perform blanket-handling for
+        // all mouse events. Off-screen mouse movements (-1) are translated to nil.
+        queueEvent( "mouse_move", new Object[] { 1, x == -1 ? null : x, y == -1 ? null : y } );
+    }
+
+    default void update()
+    {
+    }
 }

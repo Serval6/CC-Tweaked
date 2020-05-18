@@ -160,6 +160,7 @@ gui.computercraft:config.default_computer_settings=Default Computer settings
 gui.computercraft:config.debug_enabled=Enable debug library
 gui.computercraft:config.log_computer_errors=Log computer errors
 gui.computercraft:config.command_require_creative=Command computers require creative
+gui.computercraft:config.mouse_move_throttle=Time between mouse_move events (ticks)
 
 gui.computercraft:config.execution=Execution
 gui.computercraft:config.execution.computer_threads=Computer threads
